@@ -1,3 +1,8 @@
 # Python-Bytecode aus den Skill-Skripten (z. B. ui-ux-pro-max search.py)
 __pycache__/
 *.py[cod]
+
+# Lokale Secrets (z. B. API_KEY_21ST für den 21st.dev MCP-Server)
+.env
+.env.*
+!.env.example
