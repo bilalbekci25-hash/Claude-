@@ -66,17 +66,61 @@
    Solange quelle leer ist ("") wird nur ein ruhiger Platzhalter angezeigt.
 
    ----------------------------------------------------------------------------
+   DIE INTRO-SZENE (Video zum Scrollen)
+   ----------------------------------------------------------------------------
+   Eine Szene mit  intro: true  ist die Aufblende am Anfang. Statt eines
+   Knopfes schiebt Pola sie selbst weiter: scrollen, wischen oder Pfeiltaste
+   nach unten. Das Video laeuft dabei genau so weit, wie sie geschoben hat -
+   vorwaerts und rueckwaerts.
+
+     video:   { quelle: "", alt: "..." }   Video, siehe unten
+     nachsatz: "Nimm dir Zeit dafuer."     erscheint ganz am Ende
+     hinweis: "scrollen oder wischen"      Text unten mit dem Pfeil
+     ueberspringen: "Ueberspringen"        Knopf, der immer da ist
+     knoepfe: [...]                        erscheinen erst am Ende
+
+   VIDEO EINSETZEN: Am einfachsten legst du deinen Clip als  clip.mp4  neben
+   diese HTML-Datei und schreibst  quelle: "clip.mp4"  . Dann sind es zwei
+   Dateien - wenn du Pola beides schickst, funktioniert es.
+   Soll es unbedingt eine einzige Datei bleiben, wandle den Clip in base64 um
+   und setze  quelle: "data:video/mp4;base64,AAAA..."  ein. Das macht die
+   Datei aber schnell sehr gross, also nur bei kurzen Clips (wenige Sekunden).
+   Nimm ein Video ohne Ton, es wird stumm abgespielt.
+
+   Solange quelle leer ist ("") laeuft die Aufblende ohne Video: der Regen
+   nimmt beim Schieben zu und die Schrift kommt scharf. Das sieht bewusst
+   fertig aus, du musst also kein Video einsetzen.
+
+   ----------------------------------------------------------------------------
    KLEINIGKEITEN
    ----------------------------------------------------------------------------
-   - START_SZENE unten legt fest, womit die Seite anfängt.
+   - START_SZENE unten legt fest, womit die Seite anfängt. Willst du die
+     Aufblende ganz weglassen, setze START_SZENE auf "start".
    - Die Reihenfolge im Menü steht in der Szene "menu" bei knoepfe.
    - Antworten werden absichtlich nirgends gespeichert. Wenn Pola die Seite
      schließt, sind sie weg. Über den Knopf am Ende kann sie sie kopieren.
    ============================================================================ */
 
-const START_SZENE = "start";
+const START_SZENE = "intro";
 
 const SZENEN = {
+
+  /* --------------------------------------------------------------- Intro -- */
+  "intro": {
+    intro: true,
+    ueberschrift: "Für Pola",
+    nachsatz: "Nimm dir Zeit dafür.",
+    hinweis: "scrollen oder wischen",
+    ueberspringen: "Überspringen",
+    video: {
+      quelle: "",
+      alt: "Aufblende"
+    },
+    regen: 0.1,
+    knoepfe: [
+      { text: "Anfangen", ziel: "start" }
+    ]
+  },
 
   /* ---------------------------------------------------------------- Start -- */
   "start": {
@@ -87,7 +131,7 @@ const SZENEN = {
     ],
     regen: 0.45,
     knoepfe: [
-      { text: "Anfangen", ziel: "menu" }
+      { text: "Weiter", ziel: "menu" }
     ]
   },
 
@@ -480,6 +524,61 @@ body{
     radial-gradient(90% 60% at 50% 100%, rgba(15,45,50,.5) 0%, rgba(7,23,27,0) 70%),
     linear-gradient(180deg,#08191e 0%,#07171b 100%);
 }
+/* ---- Aufblende (Intro) ---- */
+#introlage{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;
+  transition:opacity .7s ease}
+#introlage.an{opacity:1}
+#introlage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transform-origin:center center;will-change:transform;
+  opacity:0;transition:opacity .8s ease}
+#introlage video.da{opacity:1}
+/* Schleier ueber dem Video: haelt die Schrift lesbar, egal wie hell der
+   Clip ist, und zieht ihn farblich ins Petrol der uebrigen Seite. */
+#introlage .introschleier{position:absolute;inset:0;
+  background:linear-gradient(180deg,
+    rgba(7,23,27,.62) 0%, rgba(7,23,27,.2) 30%,
+    rgba(7,23,27,.28) 62%, rgba(7,23,27,.78) 100%);}
+#introleiste{position:fixed;left:0;right:0;bottom:0;height:2px;z-index:3;
+  background:rgba(190,220,215,.12);opacity:0;transition:opacity .5s ease;
+  pointer-events:none}
+#introleiste.an{opacity:1}
+#introleiste span{display:block;height:100%;width:100%;transform:scaleX(0);
+  transform-origin:left center;
+  background:linear-gradient(90deg,rgba(201,180,122,.55),rgba(231,217,164,.95))}
+
+.intro .kapitelzeile{margin-bottom:0}
+.introtitel::after{content:none}
+.introtitel{
+  font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;
+  font-size:clamp(38px,11vw,86px);line-height:1.05;letter-spacing:.005em;
+  color:#f0eadb;margin:0;text-align:center;max-inline-size:none;
+  text-shadow:0 4px 30px rgba(0,0,0,.5);
+  will-change:transform,filter,opacity;
+}
+.intronachsatz{
+  font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;
+  font-size:clamp(21px,5vw,34px);line-height:1.25;color:#f0eadb;
+  margin:0;text-align:center;max-inline-size:22ch;opacity:0;
+  text-shadow:0 4px 24px rgba(0,0,0,.5);
+  will-change:transform,filter,opacity;
+}
+.introstapel{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:26px;min-height:100%}
+.introhinweis{
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  color:var(--text-leise);font-size:12px;font-weight:500;letter-spacing:.24em;
+  text-transform:uppercase;transition:opacity .45s ease;margin:0;
+  text-shadow:0 2px 14px rgba(0,0,0,.65);
+}
+.introhinweis svg{width:14px;height:18px;color:var(--gold)}
+@media (prefers-reduced-motion:no-preference){
+  .introhinweis svg{animation:introwipp 1.9s ease-in-out infinite}
+}
+@keyframes introwipp{
+  0%,100%{transform:translateY(0);opacity:.5}
+  50%{transform:translateY(5px);opacity:1}
+}
+
 #vignette{
   position:fixed;inset:0;z-index:2;pointer-events:none;
   box-shadow:inset 0 0 180px 40px rgba(0,0,0,.55);
@@ -657,7 +756,9 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
 <body>
 
 <div id="grund"></div>
+<div id="introlage" aria-hidden="true"></div>
 <canvas id="regen" aria-hidden="true"></canvas>
+<div id="introleiste" aria-hidden="true"><span id="introfuellung"></span></div>
 <div id="vignette"></div>
 
 <main class="buehne">
@@ -697,6 +798,197 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
   var aktuell   = null;
 
   var KAPITEL = ["k1_1","k2_1","k3_1","k4_1"];   // für die Punkte oben rechts
+
+  /* ======================= Aufblende (Intro) ==============================
+     Die Seite selbst scrollt nie - nur der Textbereich. Deshalb muss hier
+     auch nichts "gesperrt" werden: es reicht, Rad- und Wischeingaben
+     abzufangen, solange die Aufblende laeuft. Sie gibt sie wieder frei,
+     sobald sie durch ist, und der Ueberspringen-Knopf ist die ganze Zeit
+     da - per Maus wie per Tastatur.
+     ====================================================================== */
+  var introLage    = document.getElementById("introlage");
+  var introLeiste  = document.getElementById("introleiste");
+  var introFuell   = document.getElementById("introfuellung");
+
+  var WEG = 2600;              // Schiebeweg in Pixeln fuer die ganze Aufblende
+  var TASTENSCHRITT = 280;     // wie weit eine Pfeiltaste schiebt
+
+  var introAn = false, introFertig = false, introGeschoben = false;
+  var introZiel = 0, introJetzt = 0, introRaf = 0;
+  var introVideo = null, introDauer = 0, introSucht = false, introWartet = null;
+  var introTitel = null, introNachsatz = null, introHinweis = null;
+  var introSzene = null, introTippY = 0;
+
+  function introSuchen(t){
+    if (!introVideo || !introDauer) return;
+    if (introSucht){ introWartet = t; return; }
+    introSucht = true;
+    try { introVideo.currentTime = t; } catch (e) { introSucht = false; }
+  }
+
+  function introSchieben(delta){
+    if (!introAn || introFertig) return false;
+    introZiel = Math.max(0, Math.min(1, introZiel + delta / WEG));
+    if (introZiel > 0.002) introGeschoben = true;
+    return true;
+  }
+
+  function introRad(e){ if (introSchieben(e.deltaY)) e.preventDefault(); }
+
+  function introTippAn(e){
+    introTippY = (e.touches[0] && e.touches[0].clientY) || 0;
+  }
+  function introTippZieh(e){
+    var y = (e.touches[0] && e.touches[0].clientY) || introTippY;
+    var d = introTippY - y;
+    introTippY = y;
+    if (introSchieben(d)) e.preventDefault();
+  }
+  function introTaste(e){
+    if (!introAn || introFertig) return;
+    var tag = document.activeElement && document.activeElement.tagName;
+    var k = e.key;
+    if (k === "ArrowDown" || k === "PageDown"){ introSchieben(TASTENSCHRITT); e.preventDefault(); }
+    else if (k === "ArrowUp" || k === "PageUp"){ introSchieben(-TASTENSCHRITT); e.preventDefault(); }
+    else if (k === "End"){ introZiel = 1; introGeschoben = true; e.preventDefault(); }
+    else if (k === " " && tag !== "BUTTON" && tag !== "A"){ introSchieben(TASTENSCHRITT); e.preventDefault(); }
+  }
+
+  function introBild(){
+    introJetzt += (introZiel - introJetzt) * 0.16;
+    if (introZiel >= 0.999 && introJetzt > 0.99) introJetzt = 1;
+    if (introZiel <= 0.001 && introJetzt < 0.01) introJetzt = 0;
+    introStand(introJetzt);
+    if (introJetzt >= 1 && !introFertig) introAbschluss();
+    introRaf = requestAnimationFrame(introBild);
+  }
+
+  // Setzt alles auf einen Fortschritt zwischen 0 und 1.
+  function introStand(p){
+    if (introVideo && introDauer) introSuchen(p * introDauer);
+    if (introVideo) introVideo.style.transform = "scale(" + (1 + p * 0.06) + ")";
+
+    if (introTitel){
+      var t = 1 - Math.min(1, p / 0.42);
+      introTitel.style.opacity = String(t);
+      introTitel.style.transform = "translateY(" + ((1 - t) * -22) + "px) scale(" + (0.96 + t * 0.04) + ")";
+      introTitel.style.filter = "blur(" + ((1 - t) * 10) + "px)";
+    }
+    if (introNachsatz){
+      var n = Math.max(0, Math.min(1, (p - 0.78) / 0.22));
+      introNachsatz.style.opacity = String(n);
+      introNachsatz.style.transform = "translateY(" + ((1 - n) * 18) + "px) scale(" + (0.97 + n * 0.03) + ")";
+      introNachsatz.style.filter = "blur(" + ((1 - n) * 8) + "px)";
+    }
+    if (introHinweis) introHinweis.style.opacity = introGeschoben ? "0" : "1";
+    if (introFuell) introFuell.style.transform = "scaleX(" + p + ")";
+
+    // Ohne Video traegt der Regen die Aufblende: er nimmt zu, je weiter
+    // geschoben wird. Mit Video bleibt er dezent im Hintergrund.
+    regenZiel(introVideo ? 0.04 + p * 0.2 : 0.06 + p * 0.55);
+  }
+
+  function introAbschluss(){
+    if (introFertig) return;
+    introFertig = true;
+    introStand(1);
+    if (introHinweis) introHinweis.style.opacity = "0";
+    if (introSzene) knoepfeBauen(introSzene, true);
+  }
+
+  function introStarten(s){
+    introSzene = s;
+    introAn = true;
+    introFertig = false;
+    introGeschoben = false;
+    introZiel = 0;
+    introJetzt = 0;
+
+    var quelle = s.video && s.video.quelle;
+    if (quelle){
+      introVideo = document.createElement("video");
+      introVideo.src = quelle;
+      introVideo.muted = true;
+      introVideo.defaultMuted = true;
+      introVideo.playsInline = true;
+      introVideo.setAttribute("playsinline", "");
+      introVideo.preload = "auto";
+      introVideo.addEventListener("loadeddata", function(){
+        introDauer = introVideo.duration || 0;
+        introVideo.classList.add("da");
+        introStand(leise ? 1 : introJetzt);
+      });
+      introVideo.addEventListener("seeked", function(){
+        introSucht = false;
+        if (introWartet !== null){
+          var t = introWartet; introWartet = null;
+          introSucht = true;
+          try { introVideo.currentTime = t; } catch (e) { introSucht = false; }
+        }
+      });
+      introLage.appendChild(introVideo);
+      introLage.appendChild(el("div","introschleier"));
+    }
+    introLage.classList.add("an");
+    introLeiste.classList.add("an");
+
+    if (leise){
+      // Weniger Bewegung: keine Schiebe-Aufblende, gleich der Endzustand.
+      introZiel = 1; introJetzt = 1; introGeschoben = true;
+      introStand(1);
+      introAbschluss();
+      return;
+    }
+
+    window.addEventListener("wheel", introRad, {passive:false});
+    window.addEventListener("touchstart", introTippAn, {passive:true});
+    window.addEventListener("touchmove", introTippZieh, {passive:false});
+    window.addEventListener("keydown", introTaste);
+    introStand(0);
+    introRaf = requestAnimationFrame(introBild);
+  }
+
+  function introBeenden(){
+    if (!introAn) return;
+    introAn = false;
+    window.removeEventListener("wheel", introRad);
+    window.removeEventListener("touchstart", introTippAn);
+    window.removeEventListener("touchmove", introTippZieh);
+    window.removeEventListener("keydown", introTaste);
+    cancelAnimationFrame(introRaf);
+    introLage.classList.remove("an");
+    introLeiste.classList.remove("an");
+    if (introVideo){
+      introVideo.pause();
+      introVideo.removeAttribute("src");
+      introVideo.load();
+      introVideo = null;
+    }
+    introLage.innerHTML = "";   // Video und Schleier abraeumen
+    introDauer = 0; introSucht = false; introWartet = null;
+    introTitel = null; introNachsatz = null; introHinweis = null; introSzene = null;
+  }
+
+  function knopfMachen(k){
+    var b = el("button","knopf" + (k.still ? " still" : ""), k.text);
+    b.type = "button";
+    b.addEventListener("click", function(){ zeige(k.ziel); });
+    return b;
+  }
+
+  function knoepfeBauen(s, fertig){
+    knoepfe.innerHTML = "";
+    // Waehrend der Aufblende steht nur der Ausweg da; die richtigen Knoepfe
+    // kommen, sobald sie durchgeschoben ist.
+    if (s.intro && !fertig){
+      var ziel = (s.knoepfe && s.knoepfe[0] && s.knoepfe[0].ziel) || "start";
+      knoepfe.appendChild(knopfMachen({
+        text: s.ueberspringen || "Überspringen", ziel: ziel, still: true
+      }));
+      return;
+    }
+    (s.knoepfe || []).forEach(function(k){ knoepfe.appendChild(knopfMachen(k)); });
+  }
 
   function mehrPruefen(){
     var rest = inhalt.scrollHeight - inhalt.clientHeight - inhalt.scrollTop;
@@ -760,6 +1052,7 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
     if (!s){ console.warn("Szene fehlt: " + id); return; }
 
     if (aktuell && !alsZurueck && aktuell !== id) VERLAUF.push(aktuell);
+    if (aktuell !== id) introBeenden();   // auch beim Zurueckspringen sauber neu
     aktuell = id;
 
     var gruppe = kapitelGruppe(id);
@@ -767,9 +1060,39 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
     punkteAktualisieren();
 
     zurueck.hidden = VERLAUF.length === 0;
+    fortschr.style.display = s.intro ? "none" : "";   // Punkte erst ab dem Brief
     hinweis.textContent = "";
 
     var box = el("article","szene");
+
+    if (s.intro){
+      box.classList.add("intro");
+      var stapel = el("div","introstapel");
+      introTitel = el("h1","introtitel", s.ueberschrift || "");
+      stapel.appendChild(introTitel);
+      if (s.nachsatz){
+        introNachsatz = el("p","intronachsatz", s.nachsatz);
+        stapel.appendChild(introNachsatz);
+      }
+      if (s.hinweis){
+        introHinweis = el("p","introhinweis");
+        introHinweis.appendChild(el("span", null, s.hinweis));
+        introHinweis.insertAdjacentHTML("beforeend",
+          '<svg viewBox="0 0 14 18" fill="none" aria-hidden="true">' +
+          '<path d="M7 1 L7 17 M2 12 L7 17 L12 12" stroke="currentColor" ' +
+          'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+        stapel.appendChild(introHinweis);
+      }
+      box.appendChild(stapel);
+      inhalt.innerHTML = "";
+      inhalt.appendChild(box);
+      knoepfeBauen(s, false);
+      introStarten(s);
+      document.title = (s.ueberschrift || "Für Pola");
+      inhalt.focus({preventScroll:true});
+      mehrPruefen();
+      return;
+    }
 
     if (s.kapitel) box.appendChild(el("p","kapitelzeile", s.kapitel));
     box.appendChild(el("h1", null, s.ueberschrift || ""));
@@ -839,15 +1162,9 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
     inhalt.appendChild(box);
     inhalt.scrollTop = 0;
 
-    knoepfe.innerHTML = "";
-    (s.knoepfe || []).forEach(function(k){
-      var b = el("button","knopf" + (k.still ? " still" : ""), k.text);
-      b.type = "button";
-      b.addEventListener("click", function(){ zeige(k.ziel); });
-      knoepfe.appendChild(b);
-    });
+    knoepfeBauen(s, false);
 
-    regenZiel(typeof s.regen === "number" ? s.regen : 0.35);
+    if (!s.intro) regenZiel(typeof s.regen === "number" ? s.regen : 0.35);
 
     document.title = (s.ueberschrift ? s.ueberschrift + " · " : "") + "Für Pola";
     inhalt.focus({preventScroll:true});
