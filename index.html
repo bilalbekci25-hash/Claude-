@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Für Pola</title>
+
+<script>
+/* ============================================================================
+   HIER ÄNDERST DU ALLES. NUR HIER.
+   ============================================================================
+
+   Alles, was auf der Seite steht, liegt in dem Objekt SZENEN weiter unten.
+   Darunter kommt die Technik – die musst du nie anfassen.
+
+   ----------------------------------------------------------------------------
+   AUFBAU EINER SZENE
+   ----------------------------------------------------------------------------
+
+   "name_der_szene": {
+     kapitel:   "Kapitel 1",              // kleine Zeile über der Überschrift (optional)
+     ueberschrift: "Woher das kommt",     // die große Überschrift
+     absaetze: [                          // die Textabsätze, jeder Eintrag = ein Absatz
+       "Erster Absatz.",
+       "Zweiter Absatz."
+     ],
+     liste: {                             // optional: eine Aufzählung
+       titel: "Was mir wichtig ist",
+       punkte: [ "Punkt eins", "Punkt zwei" ]
+     },
+     bild: {                              // optional: ein Bild
+       quelle: "",                        // leer lassen = graue Fläche als Platzhalter
+       alt:    "Kurze Beschreibung",
+       text:   "Bildunterschrift"
+     },
+     antwort: {                           // optional: ein Feld, in das Pola antworten kann
+       frage: "Meine Frage an dich",
+       platzhalter: "Schreib einfach los ..."
+     },
+     regen: 0.6,                          // Stärke des Regens: 0 = kein Regen, 1 = stark
+     knoepfe: [                           // die Knöpfe unten. "ziel" = Name der nächsten Szene
+       { text: "Weiter", ziel: "k1_2" },
+       { text: "Zurück zum Menü", ziel: "menu", still: true }   // still: true = unauffälliger Knopf
+     ]
+   }
+
+   ----------------------------------------------------------------------------
+   NEUE SZENE HINZUFÜGEN
+   ----------------------------------------------------------------------------
+   1. Irgendwo im Objekt SZENEN eine neue Zeile anfangen, z. B.:
+        "kapitel5": { ueberschrift: "...", absaetze: ["..."],
+                      knoepfe: [ { text: "Zurück zum Menü", ziel: "menu" } ] },
+   2. Von einer anderen Szene aus darauf verlinken, indem du bei einem Knopf
+      ziel: "kapitel5" einträgst.
+   Fertig. Am Code darunter musst du nichts ändern.
+
+   ----------------------------------------------------------------------------
+   BILDER EINFÜGEN
+   ----------------------------------------------------------------------------
+   Die Seite soll eine einzige Datei bleiben. Damit ein Bild fest drin steckt:
+   Bild auf einer Seite wie base64-image.de hochladen, den erzeugten Text
+   (er fängt mit  data:image/jpeg;base64,...  an) kopieren und bei quelle:
+   in Anführungszeichen einsetzen. Alternativ geht auch ein Dateiname wie
+   "bild1.jpg", dann muss die Datei aber neben dieser HTML-Datei liegen.
+   Solange quelle leer ist ("") wird nur ein ruhiger Platzhalter angezeigt.
+
+   ----------------------------------------------------------------------------
+   KLEINIGKEITEN
+   ----------------------------------------------------------------------------
+   - START_SZENE unten legt fest, womit die Seite anfängt.
+   - Die Reihenfolge im Menü steht in der Szene "menu" bei knoepfe.
+   - Antworten werden absichtlich nirgends gespeichert. Wenn Pola die Seite
+     schließt, sind sie weg. Über den Knopf am Ende kann sie sie kopieren.
+   ============================================================================ */
+
+const START_SZENE = "start";
+
+const SZENEN = {
+
+  /* ---------------------------------------------------------------- Start -- */
+  "start": {
+    ueberschrift: "Es tut mir leid.",
+    absaetze: [
+      "Pola, ich habe das hier gebaut, weil ich manche Sachen besser aufschreiben kann, als ich sie sage.",
+      "Du musst nichts davon sofort beantworten. Lies es in der Reihenfolge, die du willst, und hör auf, wenn es zu viel wird."
+    ],
+    regen: 0.45,
+    knoepfe: [
+      { text: "Anfangen", ziel: "menu" }
+    ]
+  },
+
+  /* ----------------------------------------------------------------- Menü -- */
+  "menu": {
+    kapitel: "Für dich",
+    ueberschrift: "Vier Kapitel",
+    absaetze: [
+      "In beliebiger Reihenfolge. Du kommst von überall wieder hierher zurück."
+    ],
+    menue: true,
+    regen: 0.3,
+    knoepfe: [
+      { text: "1 · Meine Vertrauensprobleme", ziel: "k1_1" },
+      { text: "2 · Was ich mir wünsche", ziel: "k2_1" },
+      { text: "3 · Wie der Streit angefangen hat", ziel: "k3_1" },
+      { text: "4 · Mein Fazit", ziel: "k4_1" },
+      { text: "Direkt zum Schluss", ziel: "schluss", still: true }
+    ]
+  },
+
+  /* ------------------------------------------------------------ Kapitel 1 -- */
+  "k1_1": {
+    kapitel: "Kapitel 1",
+    ueberschrift: "Woher das kommt",
+    absaetze: [
+      "Meine Unsicherheit hat einen Ursprung, und der liegt nicht bei dir. Ich habe als Kind zu Hause gesehen, wie Vertrauen kaputtgeht. Ich habe gesehen, was es mit Menschen macht, wenn einer den anderen belügt, und wie lange so etwas nachwirkt.",
+      "Das war meine Normalität, bevor ich alt genug war, um zu verstehen, dass es keine ist. Irgendetwas davon ist in mir hängen geblieben.",
+      "Ich sage das nicht als Ausrede. Eine Erklärung ist keine Entschuldigung. Aber ich möchte, dass du weißt, wogegen ich anrede, wenn ich wieder komisch werde."
+    ],
+    regen: 0.75,
+    knoepfe: [
+      { text: "Weiter", ziel: "k1_2" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  "k1_2": {
+    kapitel: "Kapitel 1",
+    ueberschrift: "Es liegt nicht an dir",
+    absaetze: [
+      "Ich kann mir nicht vorstellen, dass du mir jemals untreu wärst. Nicht ansatzweise. Wenn ich ruhig nachdenke, ohne Druck im Kopf, dann weiß ich das.",
+      "Trotzdem kommt die Angst hoch, sobald ich etwas sehe oder höre, das ich nicht einordnen kann. Nicht weil du etwas falsch gemacht hast, sondern weil ich bei diesem Thema voller Unsicherheiten bin.",
+      "Das ist der unangenehme Teil: Mein Kopf macht aus einer Kleinigkeit eine Geschichte, und die Geschichte fühlt sich für einen Moment echter an als die Kleinigkeit."
+    ],
+    regen: 0.85,
+    knoepfe: [
+      { text: "Weiter", ziel: "k1_3" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  "k1_3": {
+    kapitel: "Kapitel 1",
+    ueberschrift: "Was ich mir wünsche",
+    absaetze: [
+      "Ich weiß, dass das viel verlangt ist. Aber ich wünsche mir wirklich, dass du die Person bist, die ich darum bitten kann: Hilf mir, diese Unsicherheiten zu besiegen. Nicht heute und nicht diesen Monat – aber irgendwann so weit, dass über uns kein einziger unsicherer Gedanke mehr übrig ist.",
+      "Mir ist auch klar, dass es dir nicht gut tut. Dass du dich fragst, warum jemand so über dich denkt, und dass du dadurch selbst unsicher wirst. Das ist das Letzte, was ich will.",
+      "Ich gebe mein Bestes, dir kein schlechtes Gefühl zu geben. Versprochen. Aber gib mir Zeit und geh den Weg mit mir – zu zweit schaffe ich es besser und schneller als allein. Auch das verspreche ich dir."
+    ],
+    antwort: {
+      frage: "Was brauchst du von mir, damit dir das nicht zu viel wird?",
+      platzhalter: "Schreib es so, wie es dir gerade in den Kopf kommt."
+    },
+    regen: 0.6,
+    knoepfe: [
+      { text: "Kurz was anderes", ziel: "insider_1" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  /* ------------------------------------------------- Zwischenszene: Nachts -- */
+  "insider_1": {
+    kapitel: "Zwischendurch",
+    ueberschrift: "John Pork ruft an",
+    absaetze: [
+      "Kurz Luft holen.",
+      "Ich weiß bis heute nicht, warum uns das so lange lustig war. Ich habe beim Schreiben trotzdem gegrinst.",
+      "Und Brawl Stars nachts. Zwei Uhr, du sagst noch eine Runde, ich sage auch noch eine Runde, und dann ist es halb vier. Das ist mit das Ehrlichste, was wir haben: nichts Besonderes, einfach zusammen wach sein."
+    ],
+    regen: 0.12,
+    knoepfe: [
+      { text: "Zurück zum Menü", ziel: "menu" }
+    ]
+  },
+
+  /* ------------------------------------------------------------ Kapitel 2 -- */
+  "k2_1": {
+    kapitel: "Kapitel 2",
+    ueberschrift: "Was ich mir wünsche",
+    absaetze: [
+      "Das ist der Teil, bei dem ich Angst habe, dass er hart klingt. Ich schreibe ihn trotzdem auf, weil ich lieber ehrlich bin als vage.",
+      "Es sind keine Regeln, die ich dir hinstelle und abhake. Es sind die Punkte, bei denen ich ruhig bin, wenn sie da sind – und unruhig, wenn sie fehlen."
+    ],
+    liste: {
+      titel: "Was mir wichtig ist",
+      punkte: [
+        "Kein Alkohol.",
+        "Keine Partys.",
+        "Keine Jungs als Freunde.",
+        "Keine Klamotten, die zu freizügig, zu eng oder zu betont sind.",
+        "Nachts nicht an Orten sein, an denen fast nur Typen sind.",
+        "Dass du mir sagst, dass du mich liebst – auch wenn es selbstverständlich scheint.",
+        "Dass ich merke, dass du an mich denkst.",
+        "Dass ich dir vertrauen kann und du mir."
+      ]
+    },
+    regen: 0.55,
+    knoepfe: [
+      { text: "Weiter", ziel: "k2_2" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  "k2_2": {
+    kapitel: "Kapitel 2",
+    ueberschrift: "Und was davon verhandelbar ist",
+    absaetze: [
+      "Ich weiß, dass manche dieser Punkte mehr über mich sagen als über dich. Der Alkohol, die Partys, die Orte – da geht es nicht darum, dir etwas wegzunehmen. Da geht es darum, dass mein Kopf in genau solchen Situationen anfängt zu arbeiten.",
+      "Und ich sage es dir ehrlich: Ich will lernen, damit ruhiger umzugehen. Ich möchte, dass wir darüber reden, statt dass du dich einfach fügst. Wenn dir ein Punkt zu eng ist, will ich das wissen und nicht raten.",
+      "Zu Instagram und Snapchat: Dass ich deine Accounts hatte und wollte, war nie Kontrolle. Ich schaue nicht jeden Tag nach, ob du etwas verheimlichst. Ich finde es einfach schön, wenn man seine privaten Sachen mit der Person teilt, mit der man zusammen ist. Wenn sich das für dich anders angefühlt hat, sag es mir."
+    ],
+    antwort: {
+      frage: "Welcher Punkt fühlt sich für dich am engsten an?",
+      platzhalter: "Sag es mir ehrlich, ich halte das aus."
+    },
+    regen: 0.5,
+    knoepfe: [
+      { text: "Kurz was anderes", ziel: "insider_2" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  /* -------------------------------------------- Zwischenszene: Nonchalant -- */
+  "insider_2": {
+    kapitel: "Zwischendurch",
+    ueberschrift: "Nonchalant",
+    absaetze: [
+      "Am Anfang haben wir beide so getan, als wäre uns das alles nicht so wichtig. Du warst nonchalant, ich war nonchalant, und in Wahrheit habe ich zwanzig Minuten an einer Nachricht gesessen, die aus vier Wörtern bestand.",
+      "Es gibt eine Playlist, die nur aus Songs besteht, die ich gehört habe, wenn ich an dich gedacht habe – schon bevor wir zusammen waren. Raindance ist drin. Superfreak auch. Bei beiden denke ich immer noch sofort an uns."
+    ],
+    bild: {
+      quelle: "",
+      alt: "Platz für ein Foto von uns",
+      text: "Hier kommt eins von unseren Bildern hin."
+    },
+    regen: 0.12,
+    knoepfe: [
+      { text: "Zurück zum Menü", ziel: "menu" }
+    ]
+  },
+
+  /* ------------------------------------------------------------ Kapitel 3 -- */
+  "k3_1": {
+    kapitel: "Kapitel 3",
+    ueberschrift: "Wie es angefangen hat",
+    absaetze: [
+      "Ich schreibe das so auf, wie ich es erlebt habe. Nicht um recht zu haben, sondern damit du siehst, an welcher Stelle bei mir was passiert ist.",
+      "Es fing damit an, dass du mir gesagt hast, dass du mit Davina zum Stadtfest möchtest. Ich habe gefragt, wie lange ihr bleibt, du wusstest es noch nicht. Ich habe gesagt, dass es bitte nicht zu lange sein soll, weil es voll ist und ich nicht dabei bin.",
+      "Für uns beide war das Thema an der Stelle in Ordnung. Da war noch nichts."
+    ],
+    regen: 0.7,
+    knoepfe: [
+      { text: "Weiter", ziel: "k3_2" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  "k3_2": {
+    kapitel: "Kapitel 3",
+    ueberschrift: "Die Story",
+    absaetze: [
+      "Danach, noch vor dem Stadtfest, hast du zum ersten Mal eine Story auf TikTok gepostet und bist wieder öffentlich gegangen. Wir hatten vor Monaten gesagt, dass wir nicht mehr öffentlich sind, und vor etwa drei Wochen genau darüber gesprochen, weil dein Account schon einmal öffentlich war. Ich hatte gefragt, warum, und du hast am Ende gesagt, dass du es nicht mehr machst.",
+      "Dann war es wieder so, mit einem Video von dir. Ab da hat mein Kopf angefangen: Warum jetzt? Was heißt das? Und dann kam die Angst, dass du mir etwas nicht erzählst."
+    ],
+    regen: 0.9,
+    knoepfe: [
+      { text: "Weiter", ziel: "k3_3" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  "k3_3": {
+    kapitel: "Kapitel 3",
+    ueberschrift: "Der Tag selbst",
+    absaetze: [
+      "Ab da war ich genervt, und du hast es an meiner Art zu schreiben gemerkt. Du hast gefragt, was los ist, und ich habe es dir gesagt.",
+      "Danach ist der Account trotzdem öffentlich geblieben. Du hast mir nicht Bescheid gegeben, wann du losgehst, obwohl wir das abgesprochen hatten, und wir haben über den Tag hinweg kaum geschrieben. Du hattest mir versprochen, mich anzurufen, sobald du zu Hause bist. Der Anruf kam nicht.",
+      "Jede einzelne Sache davon ist klein. Zusammen waren sie für mich ein großes Fragezeichen."
+    ],
+    regen: 1,
+    knoepfe: [
+      { text: "Weiter", ziel: "k3_4" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  "k3_4": {
+    kapitel: "Kapitel 3",
+    ueberschrift: "Der Tag danach",
+    absaetze: [
+      "Am nächsten Tag war ich immer noch stutzig. Ich habe mich gefragt, warum meine Freundin – die Person, mit der ich mir alles vorstelle – sich so verhält. Ob dir die Aufmerksamkeit von anderen etwas gibt. Ob in deinem Kopf etwas ist, von dem du mir nichts erzählen willst.",
+      "Wir haben dann über TikTok geredet, und du hast gesagt, dass du gerne sehen würdest, welche Menschen – Frauen wie Männer – deine Story anschauen. Das hat mich traurig gemacht. Nicht weil du es gesagt hast, sondern weil mir der Gedanke unangenehm ist, dass es eine Rolle spielt, welche Typen deinen Account anschauen.",
+      "Am Ende habe ich dir gesagt, dass ich glaube, dass du mir etwas verheimlichst. Das war der Satz, der alles kaputt gemacht hat."
+    ],
+    regen: 0.95,
+    knoepfe: [
+      { text: "Weiter", ziel: "k3_5" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  "k3_5": {
+    kapitel: "Kapitel 3",
+    ueberschrift: "Deine Seite",
+    absaetze: [
+      "Du warst traurig und entsetzt und hast aufgehört, mit mir zu reden. Du hast gefragt, womit du solche Gedanken verdient hast. Und du hast gesagt: „Ich fühle mich klein gemacht und eingesperrt.“",
+      "Der Satz hat wehgetan, und er stimmt trotzdem. Ich habe dir etwas unterstellt, wofür du mir keinen Grund gegeben hast. Dafür entschuldige ich mich, ohne Bedingung und ohne Aber.",
+      "Ich schreibe es hier so ausführlich auf, weil ich mir wünsche, dass du nicht nur weißt, dass ich es bereue, sondern auch, wie ich da hingekommen bin. Beides gehört für mich zusammen."
+    ],
+    antwort: {
+      frage: "Wie hast du diesen Tag erlebt? Ich möchte es wirklich wissen.",
+      platzhalter: "Auch die Sachen, die ich ungern lese."
+    },
+    regen: 0.65,
+    knoepfe: [
+      { text: "Kurz was anderes", ziel: "insider_3" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  /* ------------------------------------------- Zwischenszene: 50 Rosen ----- */
+  "insider_3": {
+    kapitel: "Zwischendurch",
+    ueberschrift: "Fünfzig",
+    absaetze: [
+      "Zu deinem Geburtstag die fünfzig Rosen. Ich habe an dem Tag nichts Kluges gesagt, ich wollte einfach, dass du es siehst statt hörst.",
+      "Deine Augen, grün und gelb. Du kannst es wahrscheinlich nicht mehr hören. Ich meine es jedes Mal so.",
+      "Ich habe mich über eine deiner Lieblingsserien schlau gemacht, nur damit ich mitreden kann. Sushi und Steak halte ich weiterhin für eine seltsame Kombination, aber ich bringe dir beides.",
+      "Kochanie. Meistens aber aşkım."
+    ],
+    bild: {
+      quelle: "",
+      alt: "Platz für ein Foto",
+      text: "Vielleicht das mit den Rosen."
+    },
+    regen: 0.1,
+    knoepfe: [
+      { text: "Zurück zum Menü", ziel: "menu" }
+    ]
+  },
+
+  /* ------------------------------------------------------------ Kapitel 4 -- */
+  "k4_1": {
+    kapitel: "Kapitel 4",
+    ueberschrift: "Mein Fazit",
+    absaetze: [
+      "Wenn ich alles zusammennehme, bleibt Folgendes.",
+      "Meine Ansprüche können hart rüberkommen, das weiß ich. Ich will sie dir anpassen, wo es geht, und ich will nicht, dass du dich in unserer Beziehung unwohl fühlst. Klein gemacht und eingesperrt soll kein Zustand sein, den du bei mir aushältst.",
+      "Gleichzeitig bleibe ich ehrlich: Ein paar dieser Punkte sind mir gerade wichtig. Ich möchte sie mit dir aushandeln, nicht durchsetzen."
+    ],
+    regen: 0.4,
+    knoepfe: [
+      { text: "Weiter", ziel: "k4_2" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  "k4_2": {
+    kapitel: "Kapitel 4",
+    ueberschrift: "Was ich von dir brauche",
+    absaetze: [
+      "Meine Unsicherheiten sind meine Aufgabe. Ich will sie besiegen, und ich fange nicht erst damit an, wenn es bequem ist.",
+      "Aber ich brauche dich dabei. Nicht als jemanden, der sich klein macht, damit ich ruhig bin – sondern als jemanden, der mir sagt, wenn ich zu weit gehe, und der mir Halt gibt, wenn ich schwanke. Mir ist bewusst, dass das nicht einfach für dich ist.",
+      "Und das Wichtigste: Ich liebe dich. Ich möchte dich nicht verlieren, und ich möchte nicht, dass zwischen uns irgendwann Schluss ist. Nicht wegen so etwas und auch wegen nichts anderem."
+    ],
+    regen: 0.35,
+    knoepfe: [
+      { text: "Zum Schluss", ziel: "schluss" },
+      { text: "Zurück zum Menü", ziel: "menu", still: true }
+    ]
+  },
+
+  /* --------------------------------------------------------------- Schluss -- */
+  "schluss": {
+    kapitel: "Schluss",
+    ueberschrift: "Eine Frage",
+    absaetze: [
+      "Es tut mir leid. Nicht der Satz, den man sagt, damit ein Streit aufhört, sondern der, den ich so meine: Es tut mir leid, dass ich dir etwas unterstellt habe. Es tut mir leid, dass du dich durch mich klein gefühlt hast.",
+      "Alles davor war meine Seite. Das hier ist die einzige Frage, auf die es mir wirklich ankommt."
+    ],
+    frage: "Gehst du das mit mir zusammen an – mit mir an meinem Vertrauen arbeiten und bei mir bleiben, auch an den Tagen, an denen ich anstrengend bin?",
+    antwort: {
+      frage: "Deine Antwort",
+      platzhalter: "So lang oder so kurz, wie du willst."
+    },
+    regen: 0.55,
+    knoepfe: [
+      { text: "Ja.", ziel: "ende_ja" },
+      { text: "Ich will erst mit dir reden.", ziel: "ende_reden" }
+    ]
+  },
+
+  "ende_ja": {
+    kapitel: "Danke",
+    ueberschrift: "Dann machen wir das",
+    absaetze: [
+      "Danke. Ich weiß, was du damit auf dich nimmst.",
+      "Ich fange bei mir an, nicht bei dir. Und wenn ich es doch wieder falsch mache, sag es mir direkt – ich will das hören, bevor es sich in mir festsetzt.",
+      "Ich liebe dich, aşkım."
+    ],
+    regen: 0.2,
+    knoepfe: [
+      { text: "Meine Antworten ansehen", ziel: "antworten" },
+      { text: "Von vorn", ziel: "start", still: true }
+    ]
+  },
+
+  "ende_reden": {
+    kapitel: "Okay",
+    ueberschrift: "Das ist auch eine Antwort",
+    absaetze: [
+      "Vollkommen in Ordnung. Ich will keine Antwort, die du gibst, weil eine Website danach fragt.",
+      "Sag mir, wann es dir passt, dann rufe ich an. Ich höre erst zu, bevor ich wieder etwas erkläre.",
+      "Ich liebe dich, aşkım."
+    ],
+    regen: 0.3,
+    knoepfe: [
+      { text: "Meine Antworten ansehen", ziel: "antworten" },
+      { text: "Von vorn", ziel: "start", still: true }
+    ]
+  },
+
+  /* ------------------------------------------------- Übersicht der Antworten -- */
+  "antworten": {
+    kapitel: "Übersicht",
+    ueberschrift: "Was du geschrieben hast",
+    absaetze: [
+      "Nichts davon wird gespeichert. Wenn du die Seite schließt, ist es weg – über den Knopf kannst du alles kopieren und mir schicken."
+    ],
+    antwortenListe: true,
+    regen: 0.15,
+    knoepfe: [
+      { text: "Zurück zum Menü", ziel: "menu" },
+      { text: "Von vorn", ziel: "start", still: true }
+    ]
+  }
+
+};
+
+/* ============================================================================
+   AB HIER: TECHNIK. MUSST DU NICHT ANFASSEN.
+   ============================================================================ */
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --petrol-tief:#07171b;
+  --petrol:#0c2229;
+  --petrol-hell:#123039;
+  --linie:rgba(190,220,215,.14);
+  --text:#dfe9e7;
+  --text-leise:#9db1b1;
+  --gold:#c9b47a;
+  --gruen-gold:#a9bd86;
+  --fokus:#e7d9a4;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--petrol-tief);
+  color:var(--text);
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:17px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+#regen{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#grund{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(26,72,80,.55) 0%, rgba(7,23,27,0) 60%),
+    radial-gradient(90% 60% at 50% 100%, rgba(15,45,50,.5) 0%, rgba(7,23,27,0) 70%),
+    linear-gradient(180deg,#08191e 0%,#07171b 100%);
+}
+#vignette{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  box-shadow:inset 0 0 180px 40px rgba(0,0,0,.55);
+}
+
+.buehne{
+  position:relative;z-index:1;
+  height:100dvh;height:100svh;
+  display:flex;flex-direction:column;
+  padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));
+  max-width:640px;margin:0 auto;
+}
+
+/* Kopfzeile */
+.kopf{display:flex;align-items:center;gap:12px;min-height:34px;flex:0 0 auto}
+.zurueck{
+  background:none;border:none;color:var(--text-leise);
+  font:inherit;font-size:14px;padding:6px 8px;margin-left:-8px;
+  border-radius:8px;cursor:pointer;
+}
+.zurueck:hover{color:var(--text)}
+.zurueck[hidden]{display:none}
+.fortschritt{margin-left:auto;display:flex;gap:7px;align-items:center}
+.punkt{width:6px;height:6px;border-radius:50%;background:rgba(201,180,122,.22);transition:background .4s}
+.punkt.gelesen{background:var(--gold)}
+
+/* Inhalt */
+.inhalt{
+  flex:1 1 auto;min-height:0;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:24px 2px;
+  scrollbar-width:thin;scrollbar-color:rgba(201,180,122,.3) transparent;
+}
+/* Kurze Szenen stehen mittig, lange Szenen fangen oben an und scrollen sauber. */
+.szene{min-height:100%;display:flex;flex-direction:column;justify-content:center}
+.inhalt:focus-visible{outline:none}
+/* Zeigt an, dass unten noch Text kommt. */
+.inhalt.mehr{
+  -webkit-mask-image:linear-gradient(180deg,#000 78%,rgba(0,0,0,.15) 100%);
+  mask-image:linear-gradient(180deg,#000 78%,rgba(0,0,0,.15) 100%);
+}
+.mehrzeichen{
+  flex:0 0 auto;text-align:center;font-size:13px;color:var(--text-leise);
+  height:16px;opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.mehrzeichen.an{opacity:.75}
+.inhalt::-webkit-scrollbar{width:6px}
+.inhalt::-webkit-scrollbar-thumb{background:rgba(201,180,122,.28);border-radius:3px}
+
+.szene{animation:auf .55s ease both}
+.szene > *{flex:0 0 auto}
+@keyframes auf{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.kapitelzeile{
+  font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gruen-gold);opacity:.8;margin:0 0 14px;
+}
+h1{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-weight:600;font-size:clamp(30px,8vw,42px);
+  line-height:1.15;letter-spacing:.01em;margin:0 0 22px;color:#f0eadb;
+}
+h1::after{
+  content:"";display:block;width:44px;height:1px;
+  background:linear-gradient(90deg,var(--gold),rgba(201,180,122,0));
+  margin-top:18px;
+}
+p{margin:0 0 18px;color:var(--text)}
+p:last-child{margin-bottom:0}
+
+.liste{margin:6px 0 20px;padding:18px 20px;border:1px solid var(--linie);border-radius:14px;background:rgba(18,48,57,.42)}
+.liste h2{
+  font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;
+  font-size:20px;margin:0 0 12px;color:var(--gold);letter-spacing:.01em;
+}
+.liste ul{margin:0;padding:0;list-style:none}
+.liste li{position:relative;padding-left:20px;margin-bottom:9px;color:var(--text)}
+.liste li:last-child{margin-bottom:0}
+.liste li::before{content:"";position:absolute;left:2px;top:.72em;width:6px;height:1px;background:var(--gruen-gold)}
+
+figure{margin:6px 0 22px}
+figure img{width:100%;display:block;border-radius:14px;border:1px solid var(--linie)}
+.platzhalter{
+  width:100%;aspect-ratio:4/3;border-radius:14px;
+  border:1px dashed rgba(190,220,215,.2);
+  background:linear-gradient(160deg,rgba(18,48,57,.7),rgba(9,30,36,.7));
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-leise);font-size:14px;text-align:center;padding:20px;
+}
+figcaption{margin-top:9px;font-size:13px;color:var(--text-leise)}
+
+.frage{
+  margin:8px 0 22px;padding:20px;border-left:2px solid var(--gold);
+  background:rgba(18,48,57,.35);border-radius:0 12px 12px 0;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-size:clamp(20px,5.4vw,25px);line-height:1.35;color:#f0eadb;
+}
+
+.antwortfeld{margin:6px 0 8px}
+.antwortfeld label{display:block;font-size:14px;color:var(--gruen-gold);margin-bottom:9px}
+textarea{
+  width:100%;min-height:110px;resize:vertical;
+  background:rgba(7,23,27,.6);color:var(--text);
+  border:1px solid var(--linie);border-radius:12px;
+  padding:13px 14px;font:inherit;font-size:16px;line-height:1.6;
+}
+textarea::placeholder{color:rgba(157,177,177,.55)}
+textarea:hover{border-color:rgba(190,220,215,.24)}
+
+.antwortkarte{margin-bottom:16px;padding:16px 18px;border:1px solid var(--linie);border-radius:14px;background:rgba(18,48,57,.35)}
+.antwortkarte .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gruen-gold);margin-bottom:8px}
+.antwortkarte .f{font-family:"Cormorant Garamond",Georgia,serif;font-size:19px;color:#f0eadb;margin-bottom:8px;line-height:1.35}
+.antwortkarte .a{white-space:pre-wrap;color:var(--text)}
+.leer{color:var(--text-leise);font-style:italic}
+
+/* Knöpfe */
+.knoepfe{flex:0 0 auto;display:flex;flex-direction:column;gap:10px;padding-top:16px}
+.knopf{
+  width:100%;font:inherit;font-size:16px;
+  padding:15px 18px;border-radius:13px;cursor:pointer;
+  background:rgba(201,180,122,.09);
+  border:1px solid rgba(201,180,122,.42);
+  color:#f0e6cd;text-align:left;
+  transition:background .25s,border-color .25s,transform .12s;
+}
+.knopf:hover{background:rgba(201,180,122,.17);border-color:rgba(201,180,122,.7)}
+.knopf:active{transform:translateY(1px)}
+.knopf.still{background:transparent;border-color:var(--linie);color:var(--text-leise)}
+.knopf.still:hover{color:var(--text);border-color:rgba(190,220,215,.28)}
+.knopf.kopieren{text-align:center;font-size:15px}
+
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--fokus);outline-offset:3px;border-radius:12px}
+
+.hinweis{font-size:13px;color:var(--text-leise);text-align:center;min-height:18px;padding-top:4px}
+
+@media (min-width:700px){
+  body{font-size:18px}
+  .buehne{padding:28px 24px 28px}
+  .knoepfe{flex-direction:row;flex-wrap:wrap}
+  .knopf{width:auto;flex:1 1 220px;text-align:center}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .szene{animation:none}
+  .knopf{transition:none}
+  #regen{opacity:.5}
+}
+</style>
+</head>
+<body>
+
+<div id="grund"></div>
+<canvas id="regen" aria-hidden="true"></canvas>
+<div id="vignette"></div>
+
+<main class="buehne">
+  <div class="kopf">
+    <button class="zurueck" id="zurueck" type="button" hidden>&larr; Zurück</button>
+    <div class="fortschritt" id="fortschritt" aria-hidden="true"></div>
+  </div>
+
+  <div class="inhalt" id="inhalt" tabindex="-1"></div>
+
+  <p class="mehrzeichen" id="mehrzeichen" aria-hidden="true">weiterlesen &darr;</p>
+
+  <nav class="knoepfe" id="knoepfe" aria-label="Weiter"></nav>
+  <p class="hinweis" id="hinweis"></p>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var inhalt   = document.getElementById("inhalt");
+  var knoepfe  = document.getElementById("knoepfe");
+  var zurueck  = document.getElementById("zurueck");
+  var fortschr = document.getElementById("fortschritt");
+  var hinweis  = document.getElementById("hinweis");
+  var mehrzchn = document.getElementById("mehrzeichen");
+
+  var ANTWORTEN = {};          // nur im Arbeitsspeicher, bewusst nichts gespeichert
+  var GELESEN   = {};          // welche Kapitel schon offen waren
+  var VERLAUF   = [];          // für den Zurück-Knopf
+  var aktuell   = null;
+
+  var KAPITEL = ["k1_1","k2_1","k3_1","k4_1"];   // für die Punkte oben rechts
+
+  function mehrPruefen(){
+    var rest = inhalt.scrollHeight - inhalt.clientHeight - inhalt.scrollTop;
+    var mehr = rest > 24;
+    inhalt.classList.toggle("mehr", mehr);
+    mehrzchn.classList.toggle("an", mehr);
+  }
+
+  function el(tag, klasse, text){
+    var e = document.createElement(tag);
+    if (klasse) e.className = klasse;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function kapitelGruppe(id){
+    if (id.indexOf("k1_") === 0) return "k1_1";
+    if (id.indexOf("k2_") === 0) return "k2_1";
+    if (id.indexOf("k3_") === 0) return "k3_1";
+    if (id.indexOf("k4_") === 0) return "k4_1";
+    return null;
+  }
+
+  function punkteBauen(){
+    fortschr.innerHTML = "";
+    KAPITEL.forEach(function(id){
+      var p = el("span","punkt");
+      p.dataset.fuer = id;
+      fortschr.appendChild(p);
+    });
+  }
+
+  function punkteAktualisieren(){
+    Array.prototype.forEach.call(fortschr.children, function(p){
+      p.classList.toggle("gelesen", !!GELESEN[p.dataset.fuer]);
+    });
+  }
+
+  function antwortenSammeln(){
+    var raus = [];
+    Object.keys(SZENEN).forEach(function(id){
+      var s = SZENEN[id];
+      if (!s.antwort) return;
+      raus.push({
+        kapitel: s.kapitel || "",
+        frage: s.frage || s.antwort.frage,
+        text: (ANTWORTEN[id] || "").trim()
+      });
+    });
+    return raus;
+  }
+
+  function zeige(id, alsZurueck){
+    var s = SZENEN[id];
+    if (!s){ console.warn("Szene fehlt: " + id); return; }
+
+    if (aktuell && !alsZurueck && aktuell !== id) VERLAUF.push(aktuell);
+    aktuell = id;
+
+    var gruppe = kapitelGruppe(id);
+    if (gruppe) GELESEN[gruppe] = true;
+    punkteAktualisieren();
+
+    zurueck.hidden = VERLAUF.length === 0;
+    hinweis.textContent = "";
+
+    var box = el("article","szene");
+
+    if (s.kapitel) box.appendChild(el("p","kapitelzeile", s.kapitel));
+    box.appendChild(el("h1", null, s.ueberschrift || ""));
+
+    (s.absaetze || []).forEach(function(t){ box.appendChild(el("p", null, t)); });
+
+    if (s.bild){
+      var fig = el("figure");
+      if (s.bild.quelle){
+        var img = el("img");
+        img.src = s.bild.quelle;
+        img.alt = s.bild.alt || "";
+        img.loading = "lazy";
+        fig.appendChild(img);
+      } else {
+        fig.appendChild(el("div","platzhalter", s.bild.alt || "Platz für ein Bild"));
+      }
+      if (s.bild.text) fig.appendChild(el("figcaption", null, s.bild.text));
+      box.appendChild(fig);
+    }
+
+    if (s.liste){
+      var kasten = el("div","liste");
+      if (s.liste.titel) kasten.appendChild(el("h2", null, s.liste.titel));
+      var ul = el("ul");
+      (s.liste.punkte || []).forEach(function(p){ ul.appendChild(el("li", null, p)); });
+      kasten.appendChild(ul);
+      box.appendChild(kasten);
+    }
+
+    if (s.frage) box.appendChild(el("p","frage", s.frage));
+
+    if (s.antwort){
+      var feld = el("div","antwortfeld");
+      var lab  = el("label", null, s.antwort.frage || "Deine Antwort");
+      var ta   = el("textarea");
+      var taId = "antwort_" + id;
+      lab.setAttribute("for", taId);
+      ta.id = taId;
+      ta.placeholder = s.antwort.platzhalter || "";
+      ta.value = ANTWORTEN[id] || "";
+      ta.addEventListener("input", function(){ ANTWORTEN[id] = ta.value; });
+      feld.appendChild(lab); feld.appendChild(ta);
+      box.appendChild(feld);
+    }
+
+    if (s.antwortenListe){
+      var alle = antwortenSammeln();
+      var etwas = false;
+      alle.forEach(function(a){
+        var k = el("div","antwortkarte");
+        if (a.kapitel) k.appendChild(el("div","k", a.kapitel));
+        k.appendChild(el("div","f", a.frage));
+        if (a.text){ etwas = true; k.appendChild(el("div","a", a.text)); }
+        else k.appendChild(el("div","a leer","(noch nichts geschrieben)"));
+        box.appendChild(k);
+      });
+      if (etwas){
+        var kop = el("button","knopf still kopieren","Alles kopieren");
+        kop.type = "button";
+        kop.addEventListener("click", function(){ kopiere(alle); });
+        box.appendChild(kop);
+      }
+    }
+
+    inhalt.innerHTML = "";
+    inhalt.appendChild(box);
+    inhalt.scrollTop = 0;
+
+    knoepfe.innerHTML = "";
+    (s.knoepfe || []).forEach(function(k){
+      var b = el("button","knopf" + (k.still ? " still" : ""), k.text);
+      b.type = "button";
+      b.addEventListener("click", function(){ zeige(k.ziel); });
+      knoepfe.appendChild(b);
+    });
+
+    regenZiel(typeof s.regen === "number" ? s.regen : 0.35);
+
+    document.title = (s.ueberschrift ? s.ueberschrift + " · " : "") + "Für Pola";
+    inhalt.focus({preventScroll:true});
+    mehrPruefen();
+    setTimeout(mehrPruefen, 400);
+  }
+
+  function kopiere(alle){
+    var text = alle.filter(function(a){ return a.text; }).map(function(a){
+      return (a.kapitel ? a.kapitel + " – " : "") + a.frage + "\n" + a.text;
+    }).join("\n\n");
+    if (!text) return;
+
+    function ok(){ hinweis.textContent = "Kopiert. Du kannst es jetzt einfügen."; }
+    function fehler(){ hinweis.textContent = "Hat nicht geklappt – bitte von Hand markieren."; }
+
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(ok, fehler);
+    } else {
+      var t = document.createElement("textarea");
+      t.value = text; t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.appendChild(t); t.select();
+      try { document.execCommand("copy") ? ok() : fehler(); } catch(e){ fehler(); }
+      document.body.removeChild(t);
+    }
+  }
+
+  inhalt.addEventListener("scroll", mehrPruefen, {passive:true});
+  window.addEventListener("resize", mehrPruefen);
+
+  zurueck.addEventListener("click", function(){
+    if (!VERLAUF.length) return;
+    zeige(VERLAUF.pop(), true);
+  });
+
+  document.addEventListener("keydown", function(e){
+    var tippt = document.activeElement && document.activeElement.tagName === "TEXTAREA";
+    if (tippt) return;
+    if (e.key === "ArrowLeft" && VERLAUF.length){ zeige(VERLAUF.pop(), true); }
+  });
+
+  /* ---------------------------------------------------------------- Regen -- */
+  var leise = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var cv = document.getElementById("regen");
+  var ctx = cv.getContext("2d");
+  var b = 0, h = 0, dpr = 1;
+  var tropfen = [];
+  var MAX = 220;
+  var staerke = 0.35, ziel = 0.35;
+
+  function neuerTropfen(){
+    return {
+      x: Math.random(), y: Math.random(),
+      laenge: 8 + Math.random()*22,
+      tempo: 0.004 + Math.random()*0.010,
+      alpha: 0.12 + Math.random()*0.35
+    };
+  }
+
+  function messen(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    b = window.innerWidth; h = window.innerHeight;
+    cv.width = Math.floor(b*dpr); cv.height = Math.floor(h*dpr);
+    cv.style.width = b + "px"; cv.style.height = h + "px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function regenZiel(wert){
+    ziel = Math.max(0, Math.min(1, wert));
+    // Bei "prefers-reduced-motion" laeuft keine Animation:
+    // der Regen steht still und wird nur einmal neu gezeichnet.
+    if (leise){ staerke = ziel; zeichnen(); }
+  }
+
+  function zeichnen(){
+    ctx.clearRect(0,0,b,h);
+    staerke += (ziel - staerke) * 0.02;
+
+    var anzahl = Math.round(MAX * staerke);
+    for (var i = 0; i < anzahl; i++){
+      var t = tropfen[i];
+      var x = t.x * b, y = t.y * h;
+      var l = t.laenge * (0.6 + staerke*0.7);
+      ctx.strokeStyle = "rgba(198,224,224," + (t.alpha * (0.35 + staerke*0.65)).toFixed(3) + ")";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - l*0.16, y + l);
+      ctx.stroke();
+
+      if (!leise){
+        t.y += t.tempo * (0.5 + staerke);
+        t.x -= t.tempo * 0.08;
+        if (t.y > 1.05){ t.y = -0.05; t.x = Math.random(); }
+        if (t.x < -0.05) t.x = 1.05;
+      }
+    }
+    if (!leise) requestAnimationFrame(zeichnen);
+  }
+
+  for (var i = 0; i < MAX; i++) tropfen.push(neuerTropfen());
+  messen();
+  window.addEventListener("resize", function(){ messen(); if (leise) zeichnen(); });
+  requestAnimationFrame(zeichnen);
+
+  /* ---------------------------------------------------------------- Start -- */
+  punkteBauen();
+  zeige(START_SZENE);
+})();
+</script>
+</body>
+</html>
