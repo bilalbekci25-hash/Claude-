@@ -1,0 +1,7 @@
+# Python-Bytecode der Skill-Skripte
+__pycache__/
+*.py[cod]
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
