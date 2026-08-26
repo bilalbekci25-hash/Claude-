@@ -562,6 +562,11 @@ body{
   text-shadow:0 4px 24px rgba(0,0,0,.5);
   will-change:transform,filter,opacity;
 }
+.intronachsatz.nojs{opacity:1;filter:none;transform:none;
+  font-family:"Inter",system-ui,sans-serif;font-weight:400;
+  font-size:clamp(15px,4vw,18px);line-height:1.6;color:var(--text);
+  max-inline-size:32ch;text-shadow:none}
+.intronachsatz.nojs.klein{color:var(--text-leise);font-size:clamp(14px,3.6vw,16px)}
 .introstapel{display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:26px;min-height:100%}
 .introhinweis{
@@ -771,7 +776,26 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
     <div class="fortschritt" id="fortschritt" role="img" aria-label="Noch kein Kapitel gelesen"></div>
   </div>
 
-  <div class="inhalt" id="inhalt" tabindex="-1"></div>
+  <div class="inhalt" id="inhalt" tabindex="-1">
+    <!-- Steht nur da, bis das Skript uebernimmt - und bleibt stehen, wenn
+         gar kein JavaScript laeuft. Der Titel ist derselbe wie in der
+         Intro-Szene, deshalb sieht man beim Start keinen Sprung. -->
+    <article class="szene intro">
+      <div class="introstapel">
+        <h1 class="introtitel">Für Pola</h1>
+        <noscript>
+          <p class="intronachsatz nojs">
+            Diese Seite braucht JavaScript. In der Vorschau von Chat- und
+            Mail-Apps ist es oft abgeschaltet.
+          </p>
+          <p class="intronachsatz nojs klein">
+            Lade die Datei herunter und öffne sie mit Safari, Chrome oder
+            Firefox — dann läuft alles.
+          </p>
+        </noscript>
+      </div>
+    </article>
+  </div>
 
   <p class="mehrzeichen" id="mehrzeichen" aria-hidden="true">weiterlesen<svg viewBox="0 0 24 24"
        fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
@@ -1049,7 +1073,22 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
 
   function zeige(id, alsZurueck){
     var s = SZENEN[id];
-    if (!s){ console.warn("Szene fehlt: " + id); return; }
+    if (!s){
+      // Statt still nichts zu tun: sagen, welcher Name nicht stimmt.
+      console.warn("Szene fehlt: " + id);
+      inhalt.innerHTML = "";
+      knoepfe.innerHTML = "";
+      var fehlt = el("article","szene");
+      fehlt.appendChild(el("h1", null, "Szene nicht gefunden"));
+      fehlt.appendChild(el("p", null,
+        'Es gibt keine Szene mit dem Namen "' + id + '". Pruef den Namen oben ' +
+        'im Objekt SZENEN und die Knoepfe, die mit ziel: darauf zeigen.'));
+      if (aktuell && SZENEN[aktuell]){
+        knoepfe.appendChild(knopfMachen({ text: "Zurueck", ziel: aktuell, still: true }));
+      }
+      inhalt.appendChild(fehlt);
+      return;
+    }
 
     if (aktuell && !alsZurueck && aktuell !== id) VERLAUF.push(aktuell);
     if (aktuell !== id) introBeenden();   // auch beim Zurueckspringen sauber neu
@@ -1271,8 +1310,23 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
   requestAnimationFrame(zeichnen);
 
   /* ---------------------------------------------------------------- Start -- */
-  punkteBauen();
-  zeige(START_SZENE);
+  // Faellt der Aufbau aus irgendeinem Grund aus, soll wenigstens etwas
+  // dastehen statt eines schwarzen Bildschirms.
+  try {
+    punkteBauen();
+    zeige(START_SZENE);
+  } catch (fehler) {
+    inhalt.innerHTML = "";
+    knoepfe.innerHTML = "";
+    var meldung = el("article","szene");
+    meldung.appendChild(el("h1", null, "Da ist etwas schiefgegangen"));
+    meldung.appendChild(el("p", null,
+      "Die Seite konnte nicht aufgebaut werden. Wahrscheinlich steckt ein " +
+      "Tippfehler im Text-Objekt oben in der Datei."));
+    meldung.appendChild(el("p","hinweis", String(fehler && fehler.message || fehler)));
+    inhalt.appendChild(meldung);
+    if (typeof console !== "undefined") console.error(fehler);
+  }
 })();
 </script>
 </body>
