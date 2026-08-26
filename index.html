@@ -463,6 +463,7 @@ const SZENEN = {
 html,body{height:100%}
 body{
   margin:0;
+  -webkit-text-size-adjust:100%;text-size-adjust:100%;
   background:var(--petrol-tief);
   color:var(--text);
   font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -488,17 +489,23 @@ body{
   position:relative;z-index:1;
   height:100dvh;height:100svh;
   display:flex;flex-direction:column;
-  padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));
+  padding:max(18px,env(safe-area-inset-top))
+          max(18px,env(safe-area-inset-right))
+          max(18px,env(safe-area-inset-bottom))
+          max(18px,env(safe-area-inset-left));
   max-width:640px;margin:0 auto;
 }
 
 /* Kopfzeile */
 .kopf{display:flex;align-items:center;gap:12px;min-height:34px;flex:0 0 auto}
 .zurueck{
+  display:inline-flex;align-items:center;gap:7px;
   background:none;border:none;color:var(--text-leise);
-  font:inherit;font-size:14px;padding:6px 8px;margin-left:-8px;
-  border-radius:8px;cursor:pointer;
+  font:inherit;font-size:14px;
+  min-height:44px;padding:0 10px;margin-left:-10px;
+  border-radius:10px;cursor:pointer;touch-action:manipulation;
 }
+.zurueck svg{width:16px;height:16px;flex:0 0 auto}
 .zurueck:hover{color:var(--text)}
 .zurueck[hidden]{display:none}
 .fortschritt{margin-left:auto;display:flex;gap:7px;align-items:center}
@@ -509,13 +516,17 @@ body{
 .inhalt{
   flex:1 1 auto;min-height:0;overflow-y:auto;
   -webkit-overflow-scrolling:touch;
-  padding:24px 2px;
+  padding:24px 6px;
   scrollbar-width:thin;scrollbar-color:rgba(201,180,122,.3) transparent;
 }
 /* Kurze Szenen stehen mittig, lange Szenen fangen oben an und scrollen sauber. */
 .szene{min-height:100%;display:flex;flex-direction:column;justify-content:center}
 .inhalt:focus-visible{outline:none}
 /* Zeigt an, dass unten noch Text kommt. */
+.inhalt{scroll-padding-block:12px 56px}
+/* Solange etwas im Textbereich den Fokus hat, kein Verlauf: der Fokus
+   darf nie halb unter der Ausblendung liegen. */
+.inhalt:focus-within.mehr{-webkit-mask-image:none;mask-image:none}
 .inhalt.mehr{
   -webkit-mask-image:linear-gradient(180deg,#000 78%,rgba(0,0,0,.15) 100%);
   mask-image:linear-gradient(180deg,#000 78%,rgba(0,0,0,.15) 100%);
@@ -524,7 +535,8 @@ body{
   flex:0 0 auto;text-align:center;font-size:13px;color:var(--text-leise);
   height:16px;opacity:0;transition:opacity .3s;pointer-events:none;
 }
-.mehrzeichen.an{opacity:.75}
+.mehrzeichen.an{opacity:.9}
+.mehrzeichen svg{width:14px;height:14px;vertical-align:-2px;margin-left:5px}
 .inhalt::-webkit-scrollbar{width:6px}
 .inhalt::-webkit-scrollbar-thumb{background:rgba(201,180,122,.28);border-radius:3px}
 
@@ -540,13 +552,14 @@ h1{
   font-family:"Cormorant Garamond",Georgia,serif;
   font-weight:600;font-size:clamp(30px,8vw,42px);
   line-height:1.15;letter-spacing:.01em;margin:0 0 22px;color:#f0eadb;
+  max-inline-size:min(100%,14em);text-wrap:balance;
 }
 h1::after{
   content:"";display:block;width:44px;height:1px;
   background:linear-gradient(90deg,var(--gold),rgba(201,180,122,0));
   margin-top:18px;
 }
-p{margin:0 0 18px;color:var(--text)}
+p{margin:0 0 18px;color:var(--text);max-inline-size:min(100%,36rem)}
 p:last-child{margin-bottom:0}
 
 .liste{margin:6px 0 20px;padding:18px 20px;border:1px solid var(--linie);border-radius:14px;background:rgba(18,48,57,.42)}
@@ -585,13 +598,13 @@ textarea{
   border:1px solid var(--linie);border-radius:12px;
   padding:13px 14px;font:inherit;font-size:16px;line-height:1.6;
 }
-textarea::placeholder{color:rgba(157,177,177,.55)}
+textarea::placeholder{color:rgba(157,177,177,.8)}
 textarea:hover{border-color:rgba(190,220,215,.24)}
 
 .antwortkarte{margin-bottom:16px;padding:16px 18px;border:1px solid var(--linie);border-radius:14px;background:rgba(18,48,57,.35)}
 .antwortkarte .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gruen-gold);margin-bottom:8px}
 .antwortkarte .f{font-family:"Cormorant Garamond",Georgia,serif;font-size:19px;color:#f0eadb;margin-bottom:8px;line-height:1.35}
-.antwortkarte .a{white-space:pre-wrap;color:var(--text)}
+.antwortkarte .a{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)}
 .leer{color:var(--text-leise);font-style:italic}
 
 /* Knöpfe */
@@ -599,15 +612,15 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
 .knopf{
   width:100%;font:inherit;font-size:16px;
   padding:15px 18px;border-radius:13px;cursor:pointer;
-  background:rgba(201,180,122,.09);
-  border:1px solid rgba(201,180,122,.42);
-  color:#f0e6cd;text-align:left;
-  transition:background .25s,border-color .25s,transform .12s;
+  background:rgba(201,180,122,.1);
+  border:1px solid rgba(201,180,122,.6);
+  color:#f0e6cd;text-align:left;touch-action:manipulation;
+  transition:background .2s,border-color .2s,transform .12s;
 }
 .knopf:hover{background:rgba(201,180,122,.17);border-color:rgba(201,180,122,.7)}
 .knopf:active{transform:translateY(1px)}
-.knopf.still{background:transparent;border-color:var(--linie);color:var(--text-leise)}
-.knopf.still:hover{color:var(--text);border-color:rgba(190,220,215,.28)}
+.knopf.still{background:rgba(190,220,215,.04);border-color:rgba(190,220,215,.28);color:var(--text-leise)}
+.knopf.still:hover{color:var(--text);border-color:rgba(190,220,215,.45)}
 .knopf.kopieren{text-align:center;font-size:15px}
 
 :focus{outline:none}
@@ -620,6 +633,18 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
   .buehne{padding:28px 24px 28px}
   .knoepfe{flex-direction:row;flex-wrap:wrap}
   .knopf{width:auto;flex:1 1 220px;text-align:center}
+}
+
+/* Handy im Querformat: wenig Hoehe, also flacher und zweispaltig. */
+@media (max-height:540px) and (orientation:landscape){
+  .buehne{max-width:900px}
+  .inhalt{padding:12px 6px}
+  h1{font-size:clamp(24px,4.5vh,32px);margin-bottom:14px}
+  h1::after{margin-top:12px}
+  p{margin-bottom:12px}
+  .knoepfe{flex-direction:row;flex-wrap:wrap;padding-top:10px}
+  .knopf{width:auto;flex:1 1 200px;text-align:center;padding:12px 16px}
+  .kapitelzeile{margin-bottom:8px}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -637,16 +662,22 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
 
 <main class="buehne">
   <div class="kopf">
-    <button class="zurueck" id="zurueck" type="button" hidden>&larr; Zurück</button>
-    <div class="fortschritt" id="fortschritt" aria-hidden="true"></div>
+    <button class="zurueck" id="zurueck" type="button" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 5l-7 7 7 7"/>
+      </svg>Zurück</button>
+    <div class="fortschritt" id="fortschritt" role="img" aria-label="Noch kein Kapitel gelesen"></div>
   </div>
 
   <div class="inhalt" id="inhalt" tabindex="-1"></div>
 
-  <p class="mehrzeichen" id="mehrzeichen" aria-hidden="true">weiterlesen &darr;</p>
+  <p class="mehrzeichen" id="mehrzeichen" aria-hidden="true">weiterlesen<svg viewBox="0 0 24 24"
+       fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+       stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></p>
 
   <nav class="knoepfe" id="knoepfe" aria-label="Weiter"></nav>
-  <p class="hinweis" id="hinweis"></p>
+  <p class="hinweis" id="hinweis" role="status" aria-live="polite"></p>
 </main>
 
 <script>
@@ -699,9 +730,15 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
   }
 
   function punkteAktualisieren(){
+    var zahl = 0;
     Array.prototype.forEach.call(fortschr.children, function(p){
-      p.classList.toggle("gelesen", !!GELESEN[p.dataset.fuer]);
+      var gelesen = !!GELESEN[p.dataset.fuer];
+      if (gelesen) zahl++;
+      p.classList.toggle("gelesen", gelesen);
     });
+    fortschr.setAttribute("aria-label",
+      zahl === 0 ? "Noch kein Kapitel gelesen"
+                 : zahl + " von " + KAPITEL.length + " Kapiteln gelesen");
   }
 
   function antwortenSammeln(){
