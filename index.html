@@ -507,6 +507,7 @@ const SZENEN = {
 html,body{height:100%}
 body{
   margin:0;
+  display:flex;align-items:center;justify-content:center;
   -webkit-text-size-adjust:100%;text-size-adjust:100%;
   background:var(--petrol-tief);
   color:var(--text);
@@ -610,7 +611,7 @@ body{
   border-radius:10px;cursor:pointer;touch-action:manipulation;
 }
 .zurueck svg{width:16px;height:16px;flex:0 0 auto}
-.zurueck:hover{color:var(--text)}
+@media (hover:hover){ .zurueck:hover{color:var(--text)} }
 .zurueck[hidden]{display:none}
 .fortschritt{margin-left:auto;display:flex;gap:7px;align-items:center}
 .punkt{width:6px;height:6px;border-radius:50%;background:rgba(201,180,122,.22);transition:background .4s}
@@ -703,7 +704,7 @@ textarea{
   padding:13px 14px;font:inherit;font-size:16px;line-height:1.6;
 }
 textarea::placeholder{color:rgba(157,177,177,.8)}
-textarea:hover{border-color:rgba(190,220,215,.24)}
+@media (hover:hover){ textarea:hover{border-color:rgba(190,220,215,.24)} }
 
 .antwortkarte{margin-bottom:16px;padding:16px 18px;border:1px solid var(--linie);border-radius:14px;background:rgba(18,48,57,.35)}
 .antwortkarte .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gruen-gold);margin-bottom:8px}
@@ -721,10 +722,14 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
   color:#f0e6cd;text-align:left;touch-action:manipulation;
   transition:background .2s,border-color .2s,transform .12s;
 }
-.knopf:hover{background:rgba(201,180,122,.17);border-color:rgba(201,180,122,.7)}
+@media (hover:hover){
+  .knopf:hover{background:rgba(201,180,122,.17);border-color:rgba(201,180,122,.7)}
+}
 .knopf:active{transform:translateY(1px)}
 .knopf.still{background:rgba(190,220,215,.04);border-color:rgba(190,220,215,.28);color:var(--text-leise)}
-.knopf.still:hover{color:var(--text);border-color:rgba(190,220,215,.45)}
+@media (hover:hover){
+  .knopf.still:hover{color:var(--text);border-color:rgba(190,220,215,.45)}
+}
 .knopf.kopieren{text-align:center;font-size:15px}
 
 :focus{outline:none}
@@ -737,6 +742,36 @@ textarea:hover{border-color:rgba(190,220,215,.24)}
   .buehne{padding:28px 24px 28px}
   .knoepfe{flex-direction:row;flex-wrap:wrap}
   .knopf{width:auto;flex:1 1 220px;text-align:center}
+}
+
+/* ---- Tablet, vor allem iPad ------------------------------------------
+   Auf dem iPad ist der Schirm sehr hoch. Wuerde sich der Brief ueber die
+   ganze Hoehe strecken, klebte die Ueberschrift oben und die Knoepfe
+   unten am Rand, mit einem grossen Loch dazwischen. Deshalb bekommt er
+   hier eine Hoechsthoehe und steht mittig im Regen. Dazu etwas groessere
+   Schrift, weil man ein iPad weiter weg haelt als ein Handy.            */
+@media (min-width:700px) and (min-height:700px){
+  body{font-size:19px}
+  .buehne{
+    height:min(100dvh, 940px);
+    max-width:720px;
+    padding:32px 34px;
+  }
+  .inhalt{padding:28px 8px}
+  p{max-inline-size:min(100%,38rem)}
+  h1{font-size:clamp(38px,5.4vw,50px);margin-bottom:26px}
+  .knopf{min-height:56px;font-size:17px;padding:16px 20px;border-radius:14px}
+  .knoepfe{gap:14px;padding-top:22px}
+  .zurueck{font-size:15px}
+  textarea{min-height:130px;font-size:17px}
+  .liste{padding:22px 26px}
+  .frage{padding:24px 26px}
+}
+
+/* Grosses iPad im Hochformat: noch mehr Hoehe, noch ruhiger halten. */
+@media (min-width:900px) and (min-height:1100px){
+  .buehne{height:min(100dvh, 1000px);max-width:760px}
+  .inhalt{padding:34px 8px}
 }
 
 /* Handy im Querformat: wenig Hoehe, also flacher und zweispaltig. */
